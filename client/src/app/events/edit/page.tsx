@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import { useAuth } from '@/context/AuthContext';
 import { FilterDropdown } from '@/components/FilterDropdown';
@@ -9,9 +9,10 @@ import { ChevronLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function EditEventPage() {
+function EditEventContent() {
   const router = useRouter();
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -99,7 +100,7 @@ export default function EditEventPage() {
       );
 
       if (res.ok) {
-        router.push(`/events/${id}`);
+        router.push(`/events/detail?id=${id}`);
       } else {
         const data = await res.json();
         setError(data.message || 'Failed to update event');
@@ -120,7 +121,7 @@ export default function EditEventPage() {
       <main className="grow container mx-auto px-4 py-8 flex flex-col items-center">
         <div className="w-full max-w-2xl mb-6">
           <Link
-            href={`/events/${id}`}
+            href={`/events/detail?id=${id}`}
             className="text-gray-500 hover:text-gray-900 mb-6 inline-flex items-center gap-1 transition"
           >
             <ChevronLeft size={16} /> Back to Event
@@ -239,5 +240,13 @@ export default function EditEventPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function EditEventPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+      <EditEventContent />
+    </Suspense>
   );
 }

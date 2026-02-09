@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { Upload, ChevronLeft, Loader2 } from 'lucide-react';
@@ -26,10 +27,11 @@ interface IStory {
   };
 }
 
-export default function EditStoryPage() {
+function EditStoryContent() {
   const { user } = useAuth();
   const router = useRouter();
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -297,5 +299,13 @@ export default function EditStoryPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function EditStoryPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+      <EditStoryContent />
+    </Suspense>
   );
 }

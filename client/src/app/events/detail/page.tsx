@@ -11,10 +11,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface Event {
   _id: string;
@@ -30,9 +31,10 @@ interface Event {
   };
 }
 
-export default function EventDetailPage() {
-  const params = useParams();
+function EventDetailContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const { user } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function EventDetailPage() {
         const res = await fetch(
           `${
             process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-          }/api/events/${params.id}`,
+          }/api/events/${id}`,
         );
         if (!res.ok) {
           throw new Error('Event not found');
@@ -64,10 +66,10 @@ export default function EventDetailPage() {
       }
     };
 
-    if (params.id) {
+    if (id) {
       fetchEvent();
     }
-  }, [params.id]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!user || !event) return;
@@ -165,7 +167,7 @@ export default function EventDetailPage() {
             {user?._id === event.organizer._id && (
               <div className="absolute top-4 left-4 flex gap-2">
                 <Link
-                  href={`/events/${event._id}/edit`}
+                  href={`/events/edit?id=${event._id}`}
                   className="p-2 bg-white/20 backdrop-blur-md text-white rounded-lg hover:bg-white/30 transition border border-white/30"
                   title="Edit Event"
                 >
@@ -277,5 +279,13 @@ export default function EventDetailPage() {
         isLoading={isDeleting}
       />
     </div>
+  );
+}
+
+export default function EventDetailPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+      <EventDetailContent />
+    </Suspense>
   );
 }

@@ -71,7 +71,7 @@ export function JobCard({ job }: { job: Job }) {
           </a>
         )}
         <Link
-          href={`/jobs/${job._id}`}
+          href={`/jobs/detail?id=${job._id}`}
           className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
         >
           Details

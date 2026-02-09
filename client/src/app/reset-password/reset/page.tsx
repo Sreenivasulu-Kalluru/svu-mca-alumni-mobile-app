@@ -1,16 +1,13 @@
 'use client';
 
 import { CheckCircle, Eye, EyeOff, Loader2, Lock } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { use, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 
-export default function ResetPasswordPage({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
-  const { token } = use(params);
+function ResetPasswordContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -42,7 +39,7 @@ export default function ResetPasswordPage({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ password }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -182,5 +179,13 @@ export default function ResetPasswordPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

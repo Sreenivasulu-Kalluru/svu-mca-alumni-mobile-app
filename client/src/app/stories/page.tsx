@@ -175,7 +175,7 @@ export default function StoriesPage() {
                         {user?._id === story.user?._id && (
                           <div className="flex gap-1">
                             <Link
-                              href={`/stories/${story._id}/edit`}
+                              href={`/stories/edit?id=${story._id}`}
                               className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
                               title="Edit Story"
                             >

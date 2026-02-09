@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import {
   MapPin,
@@ -17,7 +18,6 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { Linkify } from '@/components/Linkify';
@@ -39,19 +39,17 @@ interface Job {
   };
 }
 
-export default function JobDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+function JobDetailContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+  const { user } = useAuth();
+
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { user } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -209,7 +207,7 @@ export default function JobDetailsPage({
                 {isOwner && (
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/jobs/${id}/edit`}
+                      href={`/jobs/edit?id=${id}`}
                       className="p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition border border-blue-100 flex items-center gap-2 font-semibold text-sm"
                     >
                       <Edit className="w-4 h-4" />
@@ -354,5 +352,13 @@ export default function JobDetailsPage({
         isLoading={isDeleting}
       />
     </div>
+  );
+}
+
+export default function JobDetailsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner message="Loading job details..." />}>
+      <JobDetailContent />
+    </Suspense>
   );
 }

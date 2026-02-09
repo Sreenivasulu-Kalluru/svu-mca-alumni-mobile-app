@@ -65,7 +65,7 @@ export function EventCard({ event }: { event: Event }) {
 
         <div className="mt-auto pt-4 flex gap-2">
           <Link
-            href={`/events/${event._id}`}
+            href={`/events/detail?id=${event._id}`}
             className="flex-1 text-center py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
           >
             Details

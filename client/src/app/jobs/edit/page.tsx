@@ -1,20 +1,17 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { useAuth } from '@/context/AuthContext';
 import { FilterDropdown } from '@/components/FilterDropdown';
 import { ChevronLeft, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EditJobPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+function EditJobContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -122,7 +119,7 @@ export default function EditJobPage({
       );
 
       if (res.ok) {
-        router.push(`/jobs/${id}`);
+        router.push(`/jobs/detail?id=${id}`);
       } else {
         const data = await res.json();
         setError(data.message || 'Failed to update job');
@@ -154,7 +151,7 @@ export default function EditJobPage({
 
       <main className="grow container mx-auto px-4 py-8 max-w-2xl">
         <Link
-          href={`/jobs/${id}`}
+          href={`/jobs/detail?id=${id}`}
           className="inline-flex items-center gap-2 text-gray-500 hover:text-blue-900 transition mb-6 font-medium group"
         >
           <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -302,7 +299,7 @@ export default function EditJobPage({
                   {saving ? 'Updating...' : 'Update Job Posting'}
                 </button>
                 <Link
-                  href={`/jobs/${id}`}
+                  href={`/jobs/detail?id=${id}`}
                   className="px-8 py-4 border border-gray-200 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition"
                 >
                   Cancel
@@ -322,5 +319,13 @@ export default function EditJobPage({
         </div>
       </main>
     </div>
+  );
+}
+
+export default function EditJobPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditJobContent />
+    </Suspense>
   );
 }
